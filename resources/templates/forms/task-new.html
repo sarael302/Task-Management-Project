@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      lang="en">
+<head>
+    <!--/*/ <th:block th:include="fragments/head :: head"></th:block> /*/-->
+    <title>Create New Backlog</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        main.container {
+            margin-top: 30px;
+            max-width: 700px;
+        }
+
+        .card {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+            font-size: 1.5rem;
+            padding: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control-label, .control-label {
+            font-weight: bold;
+        }
+
+        .input-group-text {
+            background-color: #e9ecef;
+            border: none;
+            color: #495057;
+        }
+
+        .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+
+        .btn-primary {
+            background-color: #ff6b6b;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            font-weight: bold;
+            padding: 10px;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            display: inline-block;
+            cursor: pointer;
+            color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: #ff4c4c;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            background-color: #ff4c4c;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+        }
+
+        .my-highest-header {
+            font-size: 1.5rem;
+        }
+
+        .alert-info {
+            font-size: 1.1rem;
+            text-align: center;
+            border-radius: 5px;
+            background-color: #cce5ff;
+            color: #004085;
+            border-color: #b8daff;
+            margin-bottom: 20px;
+        }
+
+        .text-danger {
+            font-size: 0.9rem;
+            margin-top: 5px;
+            color: #dc3545;
+        }
+
+        .show-password-toggle {
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+
+        .show-password-toggle:hover {
+            color: #495057;
+        }
+
+        .embed-responsive {
+            border-radius: 5px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <!--/*/ <th:block th:include="fragments/header :: header('create-new-task')"></th:block> /*/-->
+</header>
+
+<main class="container">
+    <div class="card mb-3">
+
+        <h1 class="my-highest-header card-header">Create new Backlog</h1>
+
+        <div class="card card-body">
+            <form th:action="@{/task/create}" th:object="${task}" method="post">
+                <input type="hidden" th:field="*{creatorName}"/>
+                <input type="hidden" th:field="*{owner}"/>
+
+                <!--name-->
+                <div class="form-group">
+                    <label for="name" class="form-control-label">Backlog name</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="fas fa-pen"></i>
+                            </span>
+                        </div>
+                        <input type="text" class="form-control"
+                               th:field="*{name}" id="name"/>
+                    </div>
+                    <div class="text text-danger"
+                         th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+
+                <!--description-->
+                <div class="form-group">
+                    <label for="description" class="form-control-label">Backlog description</label>
+                    <textarea class="form-control"
+                              th:field="*{description}" id="description">  </textarea>
+                    <div class="text text-danger"
+                         th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+
+                <!--date-->
+                <div class="form-group">
+                    <label for="date" class="form-control-label">Date</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="far fa-calendar-alt"></i>
+                            </span>
+                        </div>
+                        <input type="date" class="form-control"
+                               th:attr="value=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')},
+                                    min=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                               th:field="*{date}" id="date"/>
+                    </div>
+
+                    <div class="text text-danger"
+                         th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></div>
+                </div>
+
+                <input type="submit" value="Submit" class="btn btn-primary"/>
+            </form>
+        </div>
+    </div>
+</main>
+
+
+<footer class="footer">
+    <!--/*/ <th:block th:include="fragments/footer :: footer"></th:block> /*/-->
+</footer>
+
+</body>
+</html>

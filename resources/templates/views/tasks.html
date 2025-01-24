@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org" lang="en">
+<head>
+    <!--/*/ <th:block th:include="fragments/head :: head"></th:block> /*/-->
+    <title>Tasks List</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        main.container {
+            margin-top: 30px;
+            max-width: 1200px; /* Increased width */
+        }
+
+        .card {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+            font-size: 1.5rem;
+            padding: 15px;
+        }
+
+        .btn-outline-info {
+            border: 2px solid #17a2b8;
+            border-radius: 5px;
+            color: #17a2b8;
+            font-weight: bold;
+            padding: 5px 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-outline-info:hover {
+            background-color: #17a2b8;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .table {
+            width: 100%; /* Ensure the table occupies full width */
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .table thead th {
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px;
+            border-top: 1px solid #dee2e6;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table tbody td {
+            padding: 10px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn-outline-success {
+            border: 2px solid #28a745;
+            border-radius: 5px;
+            color: #28a745;
+            font-weight: bold;
+            padding: 5px 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-outline-success:hover {
+            background-color: #28a745;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-danger {
+            border: 2px solid #dc3545;
+            border-radius: 5px;
+            color: #dc3545;
+            font-weight: bold;
+            padding: 5px 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .text-left {
+            color: black;
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid #6c757d;
+            border-radius: 5px;
+            color: #6c757d;
+            font-weight: bold;
+            padding: 5px 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+        }
+
+        .my-check {
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        .my-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .my-link:hover {
+            text-decoration: underline;
+        }
+
+        .my-highest-header {
+            text-align: center;
+        }
+        /* Add this to your CSS file */
+.text-left a {
+    color: black;
+}
+    </style>
+</head>
+
+<body>
+
+<header>
+    <!--/*/ <th:block th:include="fragments/header :: header('tasks-list')"></th:block> /*/-->
+</header>
+
+<main class="container">
+    <div class="card mb-3">
+        <h1 class="my-highest-header card-header">Backlogs List</h1>
+        <div class="card card-body">
+            <table id="sortableTable" class="my-tab table table-hover text-center" style="table-layout: fixed; width: 100%;">
+                <thead class="table-primary">
+                <tr>
+                    <th style="width:40%" class="text-left">Backlog name</th>
+                    <th style="width:12%">Date</th>
+                    <th style="width:8%" class="d-none d-lg-table-cell">Days left</th>
+                    <th style="width:8%">Completed</th>
+                    <th style="width:8%" class="d-none d-lg-table-cell">Task owner</th>
+                    <th style="width:8%" class="d-none d-lg-table-cell">Task creator</th>
+                    <th style="width:16%" class="d-none d-lg-table-cell" colspan="2">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="t : ${tasks}"
+                    th:if="${!onlyInProgress or !t.completed}"
+                    th:with="isThisOneSigned=${t.owner!=null ? t.owner.equals(signedUser) : false}"
+                >
+                    <!--Task name and description link-->
+                    <td class="text-left">
+    <span>
+        <a data-toggle="modal" data-target="#modal-details"
+           th:attr="data-target='#modal-details'+${t.id}"
+           th:href="${'/task/' + t.id}"
+           class="nav-link my-link px-1 d-inline"
+           th:text="${t.name}+' '"
+        ></a>
+        <a data-toggle="modal" data-target="#modal-details"
+           th:attr="data-target='#modal-details'+${t.id}"
+           th:href="${'/task/' + t.id}"
+           class="btn-link d-inline"
+        >
+        <small class="badge badge-light">more</small>
+        </a>
+    </span>
+                    </td>
+
+                    <!--modal with task details-->
+                    <div class="modal" th:id="modal-details+${t.id}">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 th:text="${t.name}" class="modal-title text-info"></h4>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p th:text="${'Description: '+t.description}"></p>
+                                    <p th:text="${'Date: '+#temporals.format(t.date, 'dd-MM-yyyy')}"></p>
+                                    <p th:if="${t.owner!=null}" th:text="${'Task owner: '+t.owner.getName()}"></p>
+                                    <p th:text="${'Task creator: '+t.creatorName}"></p>
+                                    <!--edit button-->
+                                    <div th:if="${isAdminSigned or isThisOneSigned}" class="d-lg-none m-2">
+                                        <a th:href="${'/task/edit/' + t.id}"
+                                           class="btn btn-outline-success btn-sm">Edit</a>
+                                    </div>
+
+                                    <div th:unless="${isAdminSigned or isThisOneSigned}" class="d-lg-none m-2">
+                                        <span data-toggle="tooltip" data-placement="top" data-html="true"
+                                              title="Only task owner or admin can edit this task">
+                                            <a th:href="${'/task/edit/' + t.id}" class="btn btn-outline-secondary btn-sm disabled">Edit</a>
+                                        </span>
+                                    </div>
+                                    <!--delete button-->
+                                    <div th:if="${isAdminSigned or isThisOneSigned}" class="d-lg-none m-2">
+                                        <a data-toggle="modal" data-target="#modal-delete"
+                                           th:attr="data-target='#modal-delete'+${t.id}"
+                                           th:href="${'/task/delete/' + t.id}"
+                                           class="btn btn-outline-danger btn-sm">Delete
+                                        </a>
+                                    </div>
+
+                                    <div th:unless="${isAdminSigned or isThisOneSigned}" class="d-lg-none m-2">
+                                        <span data-toggle="tooltip" data-placement="top" data-html="true"
+                                              title="Only task owner or admin can delete this task">
+                                            <a href="" class="btn btn-outline-secondary btn-sm disabled">Delete</a>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end of modal with task details-->
+
+                    <!--Date-->
+                    <td th:text="${#temporals.format(t.date, 'dd-MM-yyyy')}"
+                        th:data-order="${t.date}"
+                    ></td>
+
+                    <!--Days left-->
+                    <td class="text-center col-1 d-none d-lg-table-cell"
+                        th:data-order="${t.date}">
+                        <!--/*/ <th:block th:include="fragments/days-left-until-deadline :: daysLeft(${t})"></th:block> /*/-->
+                    </td>
+
+                    <!--Completed / In progress-->
+                    <td th:data-order="${t.completed} ? 1 : 0"
+                        th:if="${isAdminSigned or isThisOneSigned}">
+                        <a th:href="${t.completed} ? ${'/task/unmark-done/' + t.id} : ${'/task/mark-done/' + t.id}"
+                           th:class="${t.owner==null} ? 'disabled nav-link my-link' : 'nav-link my-link'"
+                        ><i th:class="${t.completed} ? 'far fa-check-square my-check':'far fa-square my-check'"></i>
+                        </a>
+                    </td>
+
+                    <td th:data-order="${t.completed} ? 1 : 0"
+                        th:unless="${isAdminSigned or isThisOneSigned}">
+                        <span data-toggle="tooltip" data-placement="top" data-html="true"
+                              title="Only task owner or admin can mark tasks completed/uncompleted">
+                            <a th:href="${t.completed} ? ${'/task/unmark-done/' + t.id} : ${'/task/mark-done/' + t.id}"
+                               class="disabled nav-link my-link"
+                            ><i th:class="${t.completed} ? 'far fa-check-square my-check':'far fa-square my-check'"></i>
+                            </a>
+                        </span>
+                    </td>
+
+                    <!--Task owner-->
+                    <td th:if="${t.owner!=null}" class="d-none d-lg-table-cell">
+                        <div th:text="${t.owner.getName()}"></div>
+                    </td>
+
+                    <td class="text-center" th:unless="${t.owner!=null}">-</td>
+
+                    <!--Task creator-->
+                    <td th:text="${t.creatorName}" class="d-none d-lg-table-cell"></td>
+
+                    <!--edit button-->
+                    <td th:if="${isAdminSigned or isThisOneSigned}" class="d-none d-lg-table-cell">
+                        <a th:href="${'/task/edit/' + t.id}" class="btn btn-outline-success btn-sm">Edit</a>
+                    </td>
+
+                    <td th:unless="${isAdminSigned or isThisOneSigned}" class="d-none d-lg-table-cell">
+                        <span data-toggle="tooltip" data-placement="top" data-html="true"
+                              title="Only task owner or admin can edit this task">
+                        <a th:href="${'/task/edit/' + t.id}" class="btn btn-outline-secondary btn-sm disabled">Edit</a>
+                        </span>
+                    </td>
+
+                    <!--delete button-->
+                    <!-- Remove the modal for delete confirmation -->
+                    <!-- Remove the modal for delete confirmation -->
+                    <td th:if="${isAdminSigned or isThisOneSigned}" class="d-none d-lg-table-cell">
+                        <a th:href="${'/task/delete/' + t.id}" class="btn btn-outline-danger btn-sm">Delete</a>
+                    </td>
+
+                    <td th:unless="${isAdminSigned or isThisOneSigned}" class="d-none d-lg-table-cell">
+    <span data-toggle="tooltip" data-placement="top" data-html="true"
+          title="Only task owner or admin can delete this task">
+        <a href="" class="btn btn-outline-secondary btn-sm disabled">Delete</a>
+    </span>
+                    </td>
+
+
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <!--/*/ <th:block th:include="fragments/footer :: footer"></th:block> /*/-->
+</footer>
+
+<!--DataTable plug-in-->
+<!--remain scroll position after redirect-->
+<script src="js/main.js"></script>
+
+</body>
+</html>
